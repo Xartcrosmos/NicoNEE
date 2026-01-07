@@ -1,16 +1,11 @@
-// Temporary in-memory storage for pending requests
 let pendingRequests = [];
 
-// Service Role Key for authorization (stored in Vercel env)
+// Service Role key stored in Vercel environment variable
 const SERVICE_KEY = process.env.SERVICE_KEY;
 
 export default function handler(req, res) {
   if (req.method === "POST") {
-    const authHeader = req.headers.authorization || "";
-    if (authHeader !== `Bearer ${SERVICE_KEY}`) {
-      return res.status(401).json({ status: "Unauthorized" });
-    }
-
+    // Server-side only, browser does not send key
     const { name, number } = req.body;
     if (!name || !number) {
       return res.status(400).json({ status: "Missing name or number" });
@@ -20,10 +15,9 @@ export default function handler(req, res) {
     return res.status(200).json({ status: "received" });
 
   } else if (req.method === "GET") {
-    // ESP32 polls here → no auth required
+    // ESP32 polls here → no key required
     res.status(200).json(pendingRequests);
-    pendingRequests = []; // clear after sending
-
+    pendingRequests = [];
   } else {
     res.status(405).end();
   }

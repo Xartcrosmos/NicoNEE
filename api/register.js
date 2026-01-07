@@ -1,22 +1,15 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+let pendingRequests = []; // temporary storage
 
-  const response = await fetch(
-    `${process.env.SUPABASE_URL}/rest/v1/connectivity_test`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": process.env.SUPABASE_SERVICE_ROLE_KEY,
-        "Authorization": `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify({
-        source: "vercel",
-        value: "hello"
-      })
-    }
-  );
-
-  res.status(response.ok ? 200 : 500).end();
+export default function handler(req, res) {
+  if (req.method === "POST") {
+    const { name, number } = req.body;
+    pendingRequests.push({ name, number, timestamp: Date.now() });
+    res.status(200).json({ status: "received" });
+  } else if (req.method === "GET") {
+    // ESP32 polls here
+    res.status(200).json(pendingRequests);
+    pendingRequests = []; // clear after sending
+  } else {
+    res.status(405).end();
+  }
 }

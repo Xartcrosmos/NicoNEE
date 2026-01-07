@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Supabase Test</title>
+</head>
+<body>
+
+  <h3>Test Vercel → Supabase</h3>
+
+  <input id="value" placeholder="Type something" />
+  <button onclick="send()">Send</button>
+
+  <p id="status"></p>
+
+  <script>
+    async function send() {
+      const val = document.getElementById("value").value;
+      if (!val) return alert("Type something first");
+
+      document.getElementById("status").innerText = "Sending...";
+
+      try {
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value: val })
+        });
+
+        document.getElementById("status").innerText =
+          res.ok ? "✅ Inserted" : "❌ Failed";
+      } catch (err) {
+        document.getElementById("status").innerText = "❌ Error";
+        console.error(err);
+      }
+    }
+  </script>
+
+</body>
+</html>
+
 

@@ -1,52 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Bike Rack Registration</title>
-  <style>
-    body { font-family: Arial; margin: 30px; }
-    input, button { padding: 10px; margin: 5px 0; }
-  </style>
+  <meta charset="UTF-8">
+  <title>ESP32 Registration</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.33.0/dist/supabase.min.js"></script>
 </head>
 <body>
-  <h2>Register Your Device</h2>
-  <form id="regForm">
-    <input type="text" id="name" placeholder="Your Name" required><br>
-    <input type="text" id="contact" placeholder="Contact Number" required><br>
-    <button type="submit">Submit</button>
-  </form>
-  <p id="statusMsg"></p>
+  <h3>Register User</h3>
+  <input id="name" placeholder="Name">
+  <input id="contact" placeholder="Number">
+  <button onclick="register()">Send</button>
 
   <script>
-    const supabaseUrl = "https://qkswuqrgtbfcdywzuxtk.supabase.co/rest/v1/registrations";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrc3d1cXJndGJmY2R5d3p1eHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjU4MTIsImV4cCI6MjA4MzMwMTgxMn0.OHKaVlA9IpHwlEq5cCm6crJ-n-P-M762MvZqB0XiZxYY";
+    // Supabase connection
+    const supabaseUrl = 'https://qkswuqrgtbfcdywzuxtk.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrc3d1cXJndGJmY2R5d3p1eHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjU4MTIsImV4cCI6MjA4MzMwMTgxMn0.OHKaVlA9IpHwlEq5cCm6crJ-n-P-M762MvZqB0XiZxY';
+    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
 
-    document.getElementById('regForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const contact = document.getElementById('contact').value;
+    async function register() {
+      const name = document.getElementById("name").value;
+      const contact = document.getElementById("contact").value;
 
-      const body = {
-        name: name,
-        contact: contact,
-        status: "pending"
-      };
-
-      const res = await fetch(supabaseUrl, {
-        method: 'POST',
-        headers: {
-          "apikey": supabaseKey,
-          "Authorization": "Bearer " + supabaseKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-
-      if(res.ok) {
-        document.getElementById('statusMsg').innerText = "Registration submitted! Place your finger on the device.";
-      } else {
-        document.getElementById('statusMsg').innerText = "Error submitting. Try again.";
+      if (!name || !contact) {
+        alert("Fill both fields!");
+        return;
       }
-    });
+
+      const { data, error } = await supabase
+        .from('registrations')
+        .insert([
+          { name: name, contact: contact, status: 'pending', device: '', fingerID: null }
+        ]);
+
+      if (error) {
+        console.error(error);
+        alert("Failed to register");
+      } else {
+        alert("Registration sent!");
+        console.log(data);
+      }
+    }
   </script>
 </body>
 </html>

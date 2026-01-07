@@ -8,7 +8,7 @@
 
   <h3>Test Vercel → Supabase</h3>
 
-  <input id="name" placeholder="Name">
+<input id="name" placeholder="Name">
 <input id="number" placeholder="Number">
 <button onclick="send()">Send</button>
 
@@ -18,23 +18,25 @@ async function send() {
   const number = document.getElementById("number").value;
 
   try {
-    const res = await fetch("http://192.168.254.108/receive", {
+    const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, number })
     });
 
     const data = await res.json();
-    alert("ESP32 Response: " + data.status);
+    alert("Request sent! Status: " + data.status);
   } catch (err) {
     console.error(err);
-    alert("Failed to send data to ESP32");
+    alert("Failed to send request");
   }
 }
 </script>
 
+
 </body>
 </html>
+
 
 
 

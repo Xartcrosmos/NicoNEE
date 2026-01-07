@@ -1,13 +1,10 @@
-// sendToESP32.js
-import fetch from "node-fetch";
-
+// sendToESP32.js (ESM, no node-fetch needed)
 export async function handler(event, context) {
   try {
-    // Parse the incoming JSON from the web form
     const { name, number } = JSON.parse(event.body);
 
-    // Replace with your ESP32 public URL or local IP for testing
-    const ESP32_URL = process.env.ESP32_URL; 
+    // Use your ESP32 URL here (can be public URL or local for testing)
+    const ESP32_URL = process.env.ESP32_URL;
 
     const response = await fetch(`${ESP32_URL}/receive`, {
       method: "POST",

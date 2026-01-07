@@ -8,35 +8,33 @@
 
   <h3>Test Vercel → Supabase</h3>
 
-  <input id="value" placeholder="Type something" />
-  <button onclick="send()">Send</button>
+  <input id="name" placeholder="Name">
+<input id="number" placeholder="Number">
+<button onclick="send()">Send</button>
 
-  <p id="status"></p>
+<script>
+async function send() {
+  const name = document.getElementById("name").value;
+  const number = document.getElementById("number").value;
 
-  <script>
-    async function send() {
-      const val = document.getElementById("value").value;
-      if (!val) return alert("Type something first");
+  try {
+    const res = await fetch("http://<ESP32_LOCAL_IP>/receive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, number })
+    });
 
-      document.getElementById("status").innerText = "Sending...";
-
-      try {
-        const res = await fetch("/api/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ value: val })
-        });
-
-        document.getElementById("status").innerText =
-          res.ok ? "✅ Inserted" : "❌ Failed";
-      } catch (err) {
-        document.getElementById("status").innerText = "❌ Error";
-        console.error(err);
-      }
-    }
-  </script>
+    const data = await res.json();
+    alert("ESP32 Response: " + data.status);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to send data to ESP32");
+  }
+}
+</script>
 
 </body>
 </html>
+
 
 

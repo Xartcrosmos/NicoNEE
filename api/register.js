@@ -7,7 +7,6 @@ const SERVICE_KEY = process.env.SERVICE_KEY;
 export default function handler(req, res) {
   if (req.method === "POST") {
     const authHeader = req.headers.authorization || "";
-
     if (authHeader !== `Bearer ${SERVICE_KEY}`) {
       return res.status(401).json({ status: "Unauthorized" });
     }

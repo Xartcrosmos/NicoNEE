@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ESP32 Test</title>
+  <title>Send to ESP32</title>
 </head>
 <body>
 
-<h3>Send data to ESP32</h3>
+<h3>Send Data to ESP32 via Netlify</h3>
 
 <input id="name" placeholder="Name">
 <input id="number" placeholder="Number">
@@ -18,14 +18,14 @@ async function send() {
   const number = document.getElementById("number").value;
 
   try {
-    const res = await fetch("http://192.168.43.249/receive", {  // replace with your ESP32 IP
+    const res = await fetch("/.netlify/functions/sendToESP32", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, number })
     });
 
     const data = await res.json();
-    alert("ESP32 Response: " + data.status);
+    alert("Server response: " + JSON.stringify(data));
   } catch (err) {
     console.error(err);
     alert("Failed to send data to ESP32");

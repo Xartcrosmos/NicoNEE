@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Supabase Test</title>
+  <meta charset="UTF-8">
+  <title>Vercel → ESP32 Test</title>
 </head>
 <body>
 
-  <h3>Test Vercel → Supabase</h3>
-
-<input id="name" placeholder="Name">
-<input id="number" placeholder="Number">
-<button onclick="send()">Send</button>
+<h3>Send Name + Number</h3>
 
 <input id="name" placeholder="Name">
 <input id="number" placeholder="Number">
 <button onclick="send()">Send</button>
 
 <script>
-const SERVICE_KEY = "<YOUR_SERVICE_KEY>"; // same key as Vercel env
-
 async function send() {
   const name = document.getElementById("name").value;
   const number = document.getElementById("number").value;
@@ -27,8 +21,7 @@ async function send() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${SERVICE_KEY}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({ name, number })
     });
@@ -42,12 +35,5 @@ async function send() {
 }
 </script>
 
-
 </body>
 </html>
-
-
-
-
-
-

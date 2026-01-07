@@ -12,7 +12,13 @@
 <input id="number" placeholder="Number">
 <button onclick="send()">Send</button>
 
+<input id="name" placeholder="Name">
+<input id="number" placeholder="Number">
+<button onclick="send()">Send</button>
+
 <script>
+const SERVICE_KEY = "<YOUR_SERVICE_KEY>"; // same key as Vercel env
+
 async function send() {
   const name = document.getElementById("name").value;
   const number = document.getElementById("number").value;
@@ -20,7 +26,10 @@ async function send() {
   try {
     const res = await fetch("/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SERVICE_KEY}`
+      },
       body: JSON.stringify({ name, number })
     });
 
@@ -36,6 +45,7 @@ async function send() {
 
 </body>
 </html>
+
 
 
 

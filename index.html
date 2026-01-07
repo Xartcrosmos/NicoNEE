@@ -1,52 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Bike Rack Registration</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 Registration</title>
   <style>
-    body { font-family: Arial; margin: 30px; }
-    input, button { padding: 10px; margin: 5px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f2f2f2;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"], input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      color: green;
+      font-weight: bold;
+    }
   </style>
+  <!-- Supabase JS library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 </head>
 <body>
-  <h2>Register Your Device</h2>
-  <form id="regForm">
-    <input type="text" id="name" placeholder="Your Name" required><br>
-    <input type="text" id="contact" placeholder="Contact Number" required><br>
+
+  <h1>ESP32 Registration</h1>
+  <form id="registrationForm">
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="tel" id="contact" placeholder="Contact Number" required>
     <button type="submit">Submit</button>
   </form>
-  <p id="statusMsg"></p>
+  <div id="message"></div>
 
   <script>
-    const supabaseUrl = "https://qkswuqrgtbfcdywzuxtk.supabase.co/rest/v1/registrations";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrc3d1cXJndGJmY2R5d3p1eHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjU4MTIsImV4cCI6MjA4MzMwMTgxMn0.OHKaVlA9IpHwlEq5cCm6crJ-n-P-M762MvZqB0XiZxYY";
+    // --- REPLACE with your Supabase URL & ANON KEY ---
+    const supabaseUrl = "https://qkswuqrgtbfcdywzuxtk.supabase.co";
+    const supabaseKey = "YOUR_ANON_KEY";
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    document.getElementById('regForm').addEventListener('submit', async (e) => {
+    const form = document.getElementById('registrationForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const contact = document.getElementById('contact').value;
 
-      const body = {
-        name: name,
-        contact: contact,
-        status: "pending"
-      };
+      const name = document.getElementById('name').value.trim();
+      const contact = document.getElementById('contact').value.trim();
 
-      const res = await fetch(supabaseUrl, {
-        method: 'POST',
-        headers: {
-          "apikey": supabaseKey,
-          "Authorization": "Bearer " + supabaseKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
+      if (!name || !contact) {
+        message.style.color = 'red';
+        message.textContent = 'Please fill in all fields.';
+        return;
+      }
 
-      if(res.ok) {
-        document.getElementById('statusMsg').innerText = "Registration submitted! Place your finger on the device.";
+      // Insert into Supabase
+      const { data, error } = await supabase
+        .from('registrations') // your table name
+        .insert([{ name, contact, status: 'pending' }]);
+
+      if (error) {
+        message.style.color = 'red';
+        message.textContent = 'Error: ' + error.message;
       } else {
-        document.getElementById('statusMsg').innerText = "Error submitting. Try again.";
+        message.style.color = 'green';
+        message.textContent = 'Registration submitted! Please scan fingerprint on ESP32.';
+        form.reset();
       }
     });
   </script>
+
 </body>
 </html>

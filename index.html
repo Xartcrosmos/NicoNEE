@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vercel → ESP32 Test</title>
+  <title>ESP32 Test</title>
 </head>
 <body>
 
-<h3>Send Name + Number</h3>
+<h3>Send data to ESP32</h3>
 
 <input id="name" placeholder="Name">
 <input id="number" placeholder="Number">
@@ -18,19 +18,17 @@ async function send() {
   const number = document.getElementById("number").value;
 
   try {
-    const res = await fetch("/api/register", {
+    const res = await fetch("http://192.168.43.249/receive", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, number })
     });
 
     const data = await res.json();
-    alert("Request sent! Status: " + data.status);
+    alert("ESP32 Response: " + data.status);
   } catch (err) {
     console.error(err);
-    alert("Failed to send request");
+    alert("Failed to send data to ESP32");
   }
 }
 </script>

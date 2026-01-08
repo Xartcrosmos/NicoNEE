@@ -1,35 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Send to ESP32</title>
+  <title>Register</title>
 </head>
 <body>
 
-<h3>Send Data to ESP32 via Netlify</h3>
-
+<h3>Register</h3>
 <input id="name" placeholder="Name">
-<input id="number" placeholder="Number">
+<input id="contact" placeholder="Number">
 <button onclick="send()">Send</button>
 
 <script>
+const SUPABASE_URL = "https://qkswuqrgtbfcdywzuxtk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrc3d1cXJndGJmY2R5d3p1eHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjU4MTIsImV4cCI6MjA4MzMwMTgxMn0.OHKaVlA9IpHwlEq5cCm6crJ-n-P-M762MvZqB0XiZxY";
+
 async function send() {
   const name = document.getElementById("name").value;
-  const number = document.getElementById("number").value;
+  const contact = document.getElementById("contact").value;
 
-  try {
-    const res = await fetch("/.netlify/functions/sendToESP32", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, number })
-    });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/registrations`, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({
+      name: name,
+      contact: contact,
+      status: "pending",
+      device: "web"
+    })
+  });
 
-    const data = await res.json();
-    alert("Server response: " + JSON.stringify(data));
-  } catch (err) {
-    console.error(err);
-    alert("Failed to send data to ESP32");
-  }
+  if (res.ok) alert("Sent to Supabase");
+  else alert("Failed");
 }
 </script>
 

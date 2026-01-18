@@ -18,13 +18,18 @@
     <input type="text" id="nameInput" placeholder="Your Name">
     <input type="text" id="contactInput" placeholder="Contact Number">
     <br>
-    <button id="submitBtn">Register</button>
+    <button id="submitBtn">Submit</button>
     <div id="statusMsg"></div>
   </div>
 
   <script>
+    // ------------------------------
+    // CONFIG: Replace with your Edge Function URL
+    // ------------------------------
+    const EDGE_URL = "YOUR_EDGE_FUNCTION_URL"; 
+
     const params = new URLSearchParams(window.location.search);
-    const slot = params.get("slot");
+    const slot = parseInt(params.get("slot"));
 
     const messageEl = document.getElementById("message");
     const formContainer = document.getElementById("formContainer");
@@ -34,7 +39,7 @@
     const statusMsg = document.getElementById("statusMsg");
 
     if (!slot) {
-      messageEl.textContent = "Welcome!";
+      messageEl.textContent = "No slot detected. Please scan the QR code at the bike rack.";
     } else {
       messageEl.textContent = "Register for slot " + slot;
       formContainer.style.display = "block";
@@ -44,36 +49,25 @@
         const contact = contactInput.value.trim();
 
         if (!name || !contact) {
-          statusMsg.textContent = "Please enter name and contact.";
+          statusMsg.textContent = "Please enter both name and contact.";
           return;
         }
 
-        // Disable button to prevent multiple clicks
         submitBtn.disabled = true;
         statusMsg.textContent = "Submitting...";
 
         try {
-          // POST new registration with numeric status = 0
-          const response = await fetch("YOUR_REGISTRATION_EDGE_FUNCTION_URL", {
+          // POST new registration
+          const postRes = await fetch(EDGE_URL, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              slot: parseInt(slot), 
-              name: name, 
-              contact: contact,
-              status: 0,
-              fingerid: null
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slot, name, contact, status: 0, fingerid: null })
           });
 
-          if (!response.ok) throw new Error("Network error");
+          if (!postRes.ok) throw new Error("Failed to submit registration");
 
           statusMsg.textContent = "Waiting for fingerprint...";
-          
-          // Start polling status
-          pollStatus();
+          pollStatus(); // start polling
         } catch (err) {
           statusMsg.textContent = "Error submitting. Try again.";
           submitBtn.disabled = false;
@@ -81,19 +75,22 @@
       });
     }
 
+    // ------------------------------
+    // Polling Function
+    // ------------------------------
     async function pollStatus() {
       try {
-        const response = await fetch(`YOUR_REGISTRATION_EDGE_FUNCTION_URL?slot=${slot}`);
-        if (!response.ok) throw new Error("Network error");
+        const res = await fetch(`${EDGE_URL}?slot=${slot}`);
+        if (!res.ok) throw new Error("Failed to fetch status");
 
-        const data = await response.json();
+        const data = await res.json();
         if (!data || data.length === 0) {
           statusMsg.textContent = "Waiting for fingerprint...";
           setTimeout(pollStatus, 2000);
           return;
         }
 
-        // Assuming latest row for slot
+        // Get latest row for the slot
         const record = data[data.length - 1];
 
         switch(record.status) {

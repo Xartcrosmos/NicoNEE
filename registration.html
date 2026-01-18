@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Bike Rack Registration</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    input { padding: 8px; margin: 5px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    #statusMsg { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1 id="message">Loading...</h1>
+
+  <div id="formContainer" style="display:none;">
+    <input type="text" id="nameInput" placeholder="Your Name">
+    <input type="text" id="contactInput" placeholder="Contact Number">
+    <br>
+    <button id="submitBtn">Register</button>
+    <div id="statusMsg"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const slot = params.get("slot");
+
+    const messageEl = document.getElementById("message");
+    const formContainer = document.getElementById("formContainer");
+    const submitBtn = document.getElementById("submitBtn");
+    const nameInput = document.getElementById("nameInput");
+    const contactInput = document.getElementById("contactInput");
+    const statusMsg = document.getElementById("statusMsg");
+
+    if (!slot) {
+      messageEl.textContent = "Welcome!";
+    } else {
+      messageEl.textContent = "Register for slot " + slot;
+      formContainer.style.display = "block";
+
+      submitBtn.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        const contact = contactInput.value.trim();
+
+        if (!name || !contact) {
+          statusMsg.textContent = "Please enter name and contact.";
+          return;
+        }
+
+        // Disable button to prevent multiple clicks
+        submitBtn.disabled = true;
+        statusMsg.textContent = "Submitting...";
+
+        try {
+          // POST new registration with numeric status = 0
+          const response = await fetch("YOUR_REGISTRATION_EDGE_FUNCTION_URL", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              slot: parseInt(slot), 
+              name: name, 
+              contact: contact,
+              status: 0,
+              fingerid: null
+            })
+          });
+
+          if (!response.ok) throw new Error("Network error");
+
+          statusMsg.textContent = "Waiting for fingerprint...";
+          
+          // Start polling status
+          pollStatus();
+        } catch (err) {
+          statusMsg.textContent = "Error submitting. Try again.";
+          submitBtn.disabled = false;
+        }
+      });
+    }
+
+    async function pollStatus() {
+      try {
+        const response = await fetch(`YOUR_REGISTRATION_EDGE_FUNCTION_URL?slot=${slot}`);
+        if (!response.ok) throw new Error("Network error");
+
+        const data = await response.json();
+        if (!data || data.length === 0) {
+          statusMsg.textContent = "Waiting for fingerprint...";
+          setTimeout(pollStatus, 2000);
+          return;
+        }
+
+        // Assuming latest row for slot
+        const record = data[data.length - 1];
+
+        switch(record.status) {
+          case 0:
+            statusMsg.textContent = "Waiting for fingerprint...";
+            setTimeout(pollStatus, 2000);
+            break;
+          case 1:
+            statusMsg.textContent = "Fingerprint exists or error. Please try again.";
+            submitBtn.disabled = false;
+            break;
+          case 2:
+            statusMsg.textContent = "Registration complete!";
+            break;
+          default:
+            statusMsg.textContent = "Unknown status. Refresh to try again.";
+            submitBtn.disabled = false;
+        }
+      } catch (err) {
+        statusMsg.textContent = "Connection error. Retrying...";
+        setTimeout(pollStatus, 3000);
+      }
+    }
+  </script>
+</body>
+</html>

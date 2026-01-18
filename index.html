@@ -30,8 +30,8 @@
       buttonEl.style.display = "inline-block";
 
       buttonEl.addEventListener("click", () => {
-        // Placeholder for now, will trigger registration form later
-        alert("Register button clicked for slot " + slot);
+        // Redirect to registration.html with slot preserved
+        window.location.href = `registration.html?slot=${slot}`;
       });
     }
   </script>

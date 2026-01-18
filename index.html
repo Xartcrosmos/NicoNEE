@@ -1,44 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register</title>
+  <title>Smart Bike Rack</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; }
+    #registerBtn { padding: 10px 20px; font-size: 18px; cursor: pointer; }
+  </style>
 </head>
 <body>
 
-<h3>Register</h3>
-<input id="name" placeholder="Name">
-<input id="contact" placeholder="Number">
-<button onclick="send()">Send</button>
+  <h1 id="message">Loading...</h1>
+  <button id="registerBtn" style="display:none;">Register</button>
 
-<script>
-const SUPABASE_URL = "https://qkswuqrgtbfcdywzuxtk.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrc3d1cXJndGJmY2R5d3p1eHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjU4MTIsImV4cCI6MjA4MzMwMTgxMn0.OHKaVlA9IpHwlEq5cCm6crJ-n-P-M762MvZqB0XiZxY";
+  <script>
+    // Read slot from URL
+    const params = new URLSearchParams(window.location.search);
+    const slot = params.get("slot");
 
-async function send() {
-  const name = document.getElementById("name").value;
-  const contact = document.getElementById("contact").value;
+    const messageEl = document.getElementById("message");
+    const buttonEl = document.getElementById("registerBtn");
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/registrations`, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": "return=minimal"
-    },
-    body: JSON.stringify({
-      name: name,
-      contact: contact,
-      status: "pending",
-      device: "web"
-    })
-  });
+    if (!slot) {
+      // No slot in URL
+      messageEl.textContent = "Welcome!";
+    } else {
+      // Slot exists → show register button
+      messageEl.textContent = "Slot " + slot + " detected.";
+      buttonEl.style.display = "inline-block";
 
-  if (res.ok) alert("Sent to Supabase");
-  else alert("Failed");
-}
-</script>
+      buttonEl.addEventListener("click", () => {
+        // Placeholder for next step (form or registration flow)
+        alert("Register button clicked for slot " + slot);
+        // Later: open form / send to Supabase / trigger fingerprint
+      });
+    }
+  </script>
 
 </body>
 </html>

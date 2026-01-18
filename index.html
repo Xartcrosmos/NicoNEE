@@ -5,13 +5,13 @@
   <title>Smart Bike Rack</title>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; }
-    #registerBtn { padding: 10px 20px; font-size: 18px; cursor: pointer; }
+    #registerBtn { padding: 10px 20px; font-size: 18px; cursor: pointer; display: none; }
   </style>
 </head>
 <body>
 
   <h1 id="message">Loading...</h1>
-  <button id="registerBtn" style="display:none;">Register</button>
+  <button id="registerBtn">Register</button>
 
   <script>
     // Read slot from URL
@@ -22,7 +22,7 @@
     const buttonEl = document.getElementById("registerBtn");
 
     if (!slot) {
-      // No slot in URL
+      // No slot in URL → visitor not in bikerack range
       messageEl.textContent = "Welcome!";
     } else {
       // Slot exists → show register button
@@ -30,9 +30,8 @@
       buttonEl.style.display = "inline-block";
 
       buttonEl.addEventListener("click", () => {
-        // Placeholder for next step (form or registration flow)
+        // Placeholder for now, will trigger registration form later
         alert("Register button clicked for slot " + slot);
-        // Later: open form / send to Supabase / trigger fingerprint
       });
     }
   </script>
